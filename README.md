@@ -71,14 +71,16 @@ FinSight/
 │   ├── embedder.py       # Embeds text (BGE-Large) and saves to Qdrant
 │   └── rss_fetcher.py    # RSS Feed crawling & Ticker extraction
 ├── retrieval/            # Hybrid Search, Reranking & Databases
+│   ├── cache_utils.py    # Memory cache decorator with Time-To-Live (TTL)
 │   ├── hybrid_search.py  # BM25 + Qdrant Dense RRF + BGE Reranker
+│   ├── query_expansion.py# Entity-aware semantic query expansion
 │   ├── sentiment.py      # Ticker statement classifier (FinBERT)
 │   ├── vector_store.py   # Qdrant client utility wrappers
 │   └── watchlist_db.py   # SQLite db helper for watchlist/portfolio
 ├── evaluation/           # Benchmarking & Validation Suite
-│   ├── eval_ragas.py     # Ragas suite evaluator (faithfulness/relevance)
-│   ├── evaluator.py      # Ground-truth verification queries
-│   └── ground_truth.py   # Query-Context dataset
+│   ├── evaluator.py      # Core evaluation runner (retrieval + QA test runner)
+│   ├── ground_truth.py   # Curated Q&A dataset for system evaluation
+│   └── metrics.py        # Implementation of ranking and QA score calculations
 ├── scripts/              # Verification & Utilities
 │   ├── generate_synthetic_eval.py
 │   └── test_pipeline.py  # End-to-end integration tests
@@ -147,8 +149,3 @@ FinSight comes with extensive evaluation tools to monitor retrieval and generati
 * **Benchmarks & Metrics**: Run the benchmark suite against a ground-truth dataset:
   ```bash
   python -m evaluation.evaluator
-  ```
-* **Ragas Evaluation**: Evaluate accuracy, faithfulness, and context metrics using `ragas` and `langchain`:
-  ```bash
-  python -m evaluation.eval_ragas
-  ```

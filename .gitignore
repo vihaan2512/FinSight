@@ -80,10 +80,6 @@ htmlcov/
 .tox/
 nosetests.xml
 
-# ── Docker ────────────────────────────────────────────────────────────────────
-docker-compose.override.yml
-docker-compose.local.yml
-
 # ── OS files ──────────────────────────────────────────────────────────────────
 .DS_Store
 .DS_Store?
@@ -101,9 +97,3 @@ temp/
 *.bak
 *.orig
 *.swp
-
-# ── Node.js ───────────────────────────────────────
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
