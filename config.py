@@ -8,6 +8,8 @@ class Settings(BaseSettings):
 
     # Qdrant
     qdrant_db_path: str = "./qdrant_db"
+    qdrant_url: str = ""
+    qdrant_api_key: str = ""
 
     # App
     app_env: str = "development"

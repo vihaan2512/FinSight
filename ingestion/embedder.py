@@ -70,7 +70,15 @@ def _to_uuid(id_str: str) -> str:
 
 class VectorStore:
     def __init__(self):
-        self.client = QdrantClient(path=settings.qdrant_db_path)
+        if settings.qdrant_url and settings.qdrant_api_key:
+            logger.info("Connecting to Qdrant Cloud cluster...")
+            self.client = QdrantClient(
+                url=settings.qdrant_url,
+                api_key=settings.qdrant_api_key
+            )
+        else:
+            logger.info(f"Connecting to local Qdrant database: {settings.qdrant_db_path}")
+            self.client = QdrantClient(path=settings.qdrant_db_path)
         for name in COLLECTIONS:
             recreate = False
             if self.client.collection_exists(collection_name=name):
