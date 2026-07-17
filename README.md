@@ -26,12 +26,6 @@ Unlike generic search engines or stock trackers, FinSight doesn't just return li
 
 ---
 
-## Live Demo
-🔗 **Live Demo**: [Click here to access the live application](https://finsight-ui.streamlit.app)  
-*(Frontend dashboard deployed on Streamlit Community Cloud, connected to a FastAPI backend hosted on Render, and a vector database hosted on Qdrant Cloud).*
-
----
-
 ## 🏗️ Architecture & Technology Stack
 
 FinSight is built with a decoupled architecture where the Streamlit UI communicates exclusively via REST APIs with the FastAPI backend:
