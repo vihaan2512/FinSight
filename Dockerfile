@@ -15,8 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all project files into the container
 COPY . .
 
-# Expose port 8080 (GCP Cloud Run standard port)
-EXPOSE 8080
+# Expose port 10000 (Render default port)
+EXPOSE 10000
 
-# Run FastAPI using uvicorn on port 8080
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run FastAPI using uvicorn, dynamically binding to Render's $PORT env variable
+CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-10000}"]

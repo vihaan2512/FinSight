@@ -1,8 +1,5 @@
 # 📈 FinSight: Real-Time Financial RAG & Intelligence Engine
 
-🔗 **Live Demo**: [Click here to access the live application](https://finsight.streamlit.app)  
-*(Frontend dashboard deployed on Streamlit Community Cloud, connected to a FastAPI backend hosted on Render, and a vector database hosted on Qdrant Cloud).*
-
 FinSight is a high-fidelity **Financial Retrieval-Augmented Generation (RAG)** application designed to convert raw financial news and filings into actionable investment intelligence. 
 
 By combining hybrid semantic retrieval, cross-encoder re-ranking, sentiment analysis, and LLM reasoning, FinSight helps investors cut through the noise and analyze market movements.
@@ -26,6 +23,12 @@ Unlike generic search engines or stock trackers, FinSight doesn't just return li
 * **💼 Portfolio & Watchlist Intelligence**: Save your holdings and allocations to calculate custom **Estimated Sentiment Shifts** and generate daily, watchlisted briefing summaries.
 * **🕸️ Event Impact Propagation**: Visually map causal chain flows for macroeconomic factors or market events (e.g., `Crude Oil Surge` ➔ `Airline costs rise` ➔ `Margins shrink` ➔ `Airline stocks decline`).
 * **📈 Historical Benchmarks & RAG Validation**: Run evaluation suites checking Retrieval (Hit Rate, Precision, MRR, NDCG) and Generation (using Ragas for Faithfulness, Relevance, and Completeness).
+
+---
+
+## Live Demo
+🔗 **Live Demo**: [Click here to access the live application](https://finsight-ui.streamlit.app)  
+*(Frontend dashboard deployed on Streamlit Community Cloud, connected to a FastAPI backend hosted on Render, and a vector database hosted on Qdrant Cloud).*
 
 ---
 
@@ -161,7 +164,7 @@ FinSight comes with extensive evaluation tools to monitor retrieval and generati
 
 ---
 
-## ☁️ Cloud Deployment (Production & Free Tier)
+## ☁️ Cloud Deployment
 
 FinSight is configured for secure production deployment using **Qdrant Cloud**, **Render**, and **Streamlit Community Cloud**.
 
