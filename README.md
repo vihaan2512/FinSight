@@ -1,5 +1,8 @@
 # 📈 FinSight: Real-Time Financial RAG & Intelligence Engine
 
+🔗 **Live Demo**: [Click here to access the live application](https://finsight.streamlit.app)  
+*(Frontend dashboard deployed on Streamlit Community Cloud, connected to a FastAPI backend hosted on Render, and a vector database hosted on Qdrant Cloud).*
+
 FinSight is a high-fidelity **Financial Retrieval-Augmented Generation (RAG)** application designed to convert raw financial news and filings into actionable investment intelligence. 
 
 By combining hybrid semantic retrieval, cross-encoder re-ranking, sentiment analysis, and LLM reasoning, FinSight helps investors cut through the noise and analyze market movements.
@@ -160,28 +163,32 @@ FinSight comes with extensive evaluation tools to monitor retrieval and generati
 
 ## ☁️ Cloud Deployment (Production & Free Tier)
 
-FinSight is configured for secure production deployment using **Qdrant Cloud**, **GCP Cloud Run**, and **Streamlit Community Cloud**.
+FinSight is configured for secure production deployment using **Qdrant Cloud**, **Render**, and **Streamlit Community Cloud**.
 
 ### 1. Database Setup (Qdrant Cloud)
 1. Sign up on [Qdrant Cloud Console](https://cloud.qdrant.io/) and spin up a **Free Tier Cluster**.
 2. Save your **Cluster URL** and generate a **Read-Write API Key**.
 3. Temporarily set these variables in your local `.env` file and run `python ingestion/rss_fetcher.py` to seed your cloud database.
 
-### 2. Backend Server Deployment (GCP Cloud Run)
-1. Push your repository to GitHub.
-2. In the Google Cloud Console, navigate to **Cloud Run** and click **Create Service** $\rightarrow$ select **"Deploy from a source repository"** $\rightarrow$ click **Set up with Cloud Build**.
-3. Set your build configuration to **Docker** and branch to `main`.
-4. Under **Variables & Secrets**, add your environment secrets:
-   * `GROQ_API_KEY`
-   * `QDRANT_URL` (Qdrant Cloud URL)
-   * `QDRANT_API_KEY` (Qdrant Cloud API Key)
-5. Select **Allow unauthenticated invocations** and deploy. Note your backend service URL.
+### 2. Backend Server Deployment (Render)
+1. Push your repository to GitHub (ensure `Dockerfile` and `.dockerignore` are in the root directory).
+2. Go to [Render.com](https://render.com) and sign up/log in.
+3. Click **New +** $\rightarrow$ select **Web Service**.
+4. Connect your GitHub account and select your `FinSight` repository.
+5. Configure your settings:
+   * **Language**: `Docker` *(Render will automatically find and build your Dockerfile)*
+   * **Instance Type**: `Free`
+6. Click **Advanced** $\rightarrow$ add these Environment Variables:
+   * `GROQ_API_KEY` = `(your Groq API Key)`
+   * `QDRANT_URL` = `(your Qdrant Cloud Cluster URL)`
+   * `QDRANT_API_KEY` = `(your Qdrant Cloud API Key)`
+7. Click **Deploy Web Service** at the bottom. Copy the backend service URL once it is live (e.g., `https://finsight-api.onrender.com`).
 
 ### 3. Frontend UI Deployment (Streamlit Community Cloud)
 1. Log into [share.streamlit.io](https://share.streamlit.io/) with your GitHub account.
 2. Create a **New app** and point it to your repository's `ui/app.py`.
 3. In **Settings** $\rightarrow$ **Secrets**, paste:
    ```toml
-   FINSIGHT_API_URL = "https://your-fastapi-backend-url.run.app"
+   FINSIGHT_API_URL = "https://finsight-api.onrender.com"  # Your Render backend URL
    ```
 4. Click **Deploy**. Your live dashboard is now securely hosted!
