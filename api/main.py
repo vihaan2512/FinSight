@@ -14,6 +14,7 @@ Endpoints:
 
 from contextlib import asynccontextmanager
 from typing import Optional
+import os
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Query, BackgroundTasks
