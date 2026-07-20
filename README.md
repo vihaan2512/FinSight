@@ -27,7 +27,7 @@ Unlike generic search engines or stock trackers, FinSight doesn't just return li
 ---
 
 ## 🔗 **Live Demo**
-[Click here to access the live application](https://finsight.streamlit.app)  
+[Click here to access the live application](https://finsight-1.streamlit.app)  
 *(Frontend dashboard deployed on Streamlit Community Cloud, connected to a FastAPI backend hosted on GCP Cloud Run, and a vector database hosted on Qdrant Cloud).*
 
 ---
