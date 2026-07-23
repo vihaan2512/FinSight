@@ -19,12 +19,14 @@ class Settings(BaseSettings):
     app_env: str = "development"
     log_level: str = "INFO"
     ingest_interval_minutes: int = 30
+    finsight_api_url: str = ""
 
     # Groq model
     groq_model: str = "llama-3.3-70b-versatile"
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 @lru_cache
