@@ -152,10 +152,29 @@ def hybrid_retrieve(
                     FieldCondition(key="tickers", match=MatchValue(value=base_ticker))
                 ])
             )
-        where = Filter(must=wide_conditions)
-        dense_candidates = fetch_candidates(routed_colls)
         if len(dense_candidates) < (CANDIDATE_POOL / 2) and set(routed_colls) != set(COLLECTIONS):
             dense_candidates = fetch_candidates(COLLECTIONS)
+
+    if not dense_candidates:
+        logger.info("0 dense candidates with filters — fetching unconstrained top matches from vector store")
+        seen_ids = set()
+        for coll in COLLECTIONS:
+            try:
+                results = store.client.query_points(
+                    collection_name=coll,
+                    query=query_vec,
+                    limit=10,
+                    with_payload=True
+                ).points
+                for point in results:
+                    payload = point.payload
+                    doc_id = payload.get("id", point.id)
+                    if doc_id not in seen_ids:
+                        seen_ids.add(doc_id)
+                        payload["id"] = doc_id
+                        dense_candidates.append((payload, 1.0 - point.score))
+            except Exception as e:
+                logger.error(f"Unconstrained search error on {coll}: {e}")
 
     if not dense_candidates:
         return []
