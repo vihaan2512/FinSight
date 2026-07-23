@@ -15,7 +15,7 @@ settings = get_settings()
 
 COLLECTIONS = ["finance_news", "finance_filings", "finance_macro"]
 COLLECTION_NAME = "finance_news"
-EMBEDDING_MODEL  = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_MODEL  = "BAAI/bge-large-en-v1.5"
 BATCH_SIZE       = 64
 
 
@@ -88,8 +88,8 @@ class VectorStore:
                 try:
                     info = self.client.get_collection(collection_name=name)
                     current_size = info.config.params.vectors.size
-                    if current_size != 384:
-                        logger.warning(f"Collection {name} has size {current_size}, recreating with size 384")
+                    if current_size != 1024:
+                        logger.warning(f"Collection {name} has size {current_size}, recreating with size 1024")
                         self.client.delete_collection(collection_name=name)
                         recreate = True
                 except Exception as e:
@@ -105,7 +105,7 @@ class VectorStore:
             if recreate:
                 self.client.create_collection(
                     collection_name=name,
-                    vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+                    vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
                 )
         logger.info(f"Loading embedding model: {EMBEDDING_MODEL}")
         import torch
