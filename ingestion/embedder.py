@@ -108,6 +108,15 @@ class VectorStore:
                     collection_name=name,
                     vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
                 )
+            
+            # Ensure payload indexes exist for filtering
+            try:
+                from qdrant_client.models import PayloadSchemaType
+                self.client.create_payload_index(collection_name=name, field_name="published_ts", field_schema=PayloadSchemaType.INTEGER)
+                self.client.create_payload_index(collection_name=name, field_name="region", field_schema=PayloadSchemaType.KEYWORD)
+                self.client.create_payload_index(collection_name=name, field_name="tickers", field_schema=PayloadSchemaType.KEYWORD)
+            except Exception as e:
+                logger.debug(f"Payload index setup for {name}: {e}")
         logger.info(f"Loading embedding model: {EMBEDDING_MODEL}")
         import torch
         device = "cuda" if torch.cuda.is_available() else "cpu"
