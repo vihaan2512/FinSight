@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     qdrant_url: str = ""
     qdrant_api_key: str = ""
 
+    # Relational Database (PostgreSQL / SQLite fallback)
+    postgres_url: str = ""
+    database_url: str = ""
+
     # App
     app_env: str = "development"
     log_level: str = "INFO"

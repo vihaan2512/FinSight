@@ -13,8 +13,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python -m spacy download en_core_web_sm
 
 RUN python -c "from sentence_transformers import SentenceTransformer, CrossEncoder; \
+               from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
                SentenceTransformer('BAAI/bge-large-en-v1.5'); \
-               CrossEncoder('BAAI/bge-reranker-large')"
+               CrossEncoder('BAAI/bge-reranker-large'); \
+               AutoTokenizer.from_pretrained('ProsusAI/finbert'); \
+               AutoModelForSequenceClassification.from_pretrained('ProsusAI/finbert')"
 
 COPY . .
 
