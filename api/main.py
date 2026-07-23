@@ -190,12 +190,17 @@ async def health():
         doc_count = stats.get("total_documents", 0)
     except Exception:
         pass
+    
+    last_time = _last_ingest_time
+    if not last_time and doc_count > 0:
+        last_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     return {
         "status": "ok",
         "groq_model": settings.groq_model,
         "db": {
             "total_documents": doc_count,
-            "last_ingest_time": _last_ingest_time
+            "last_ingest_time": last_time
         }
     }
 
