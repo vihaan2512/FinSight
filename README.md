@@ -82,7 +82,6 @@ FinSight/
 │   ├── query_expansion.py# Entity-aware semantic query expansion
 │   ├── sentiment.py      # Ticker statement classifier (FinBERT)
 │   ├── vector_store.py   # Qdrant client utility wrappers
-│   └── watchlist_db.py   # Relational DB helper (PostgreSQL / SQLite fallback)
 ├── evaluation/           # Benchmarking & Validation Suite
 │   ├── evaluator.py      # Core evaluation runner (retrieval + QA test runner)
 │   ├── ground_truth.py   # Curated Q&A dataset for system evaluation
