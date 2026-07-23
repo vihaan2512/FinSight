@@ -77,7 +77,8 @@ class VectorStore:
             logger.info("Connecting to Qdrant Cloud cluster...")
             self.client = QdrantClient(
                 url=settings.qdrant_url,
-                api_key=settings.qdrant_api_key
+                api_key=settings.qdrant_api_key,
+                timeout=60.0
             )
         else:
             logger.info(f"Connecting to local Qdrant database: {settings.qdrant_db_path}")
@@ -240,78 +241,54 @@ class VectorStore:
                 texts, normalize_embeddings=True, show_progress_bar=False
             ).tolist()
 
-            # Group index routes and query Qdrant in batch to find semantic duplicates
-            from collections import defaultdict
-            from qdrant_client.models import QueryRequest
-
-            coll_to_indices = defaultdict(list)
-            for j, item in enumerate(batch):
-                dest_coll = get_collection_name(item["article"].get("document_type", "news"))
-                coll_to_indices[dest_coll].append(j)
-
-            canonical_story_ids = [""] * len(batch)
-
-            for dest_coll, indices in coll_to_indices.items():
-                requests = [
-                    QueryRequest(query=embeddings[idx], limit=1, with_payload=True)
-                    for idx in indices
-                ]
-                try:
-                    batch_results = self.client.query_batch_points(
-                        collection_name=dest_coll,
-                        requests=requests
-                    )
-                    for k, match_result in enumerate(batch_results):
-                        idx = indices[k]
-                        story_id = f"story_{batch[idx]['article']['id']}"
-                        if match_result.points:
-                            matched_point = match_result.points[0]
-                            if matched_point.score >= 0.90:
-                                story_id = matched_point.payload.get("canonical_story_id", f"story_{matched_point.id}")
-                        canonical_story_ids[idx] = story_id
-                except Exception as e:
-                    logger.warning(f"Batch story query failed for {dest_coll}: {e}")
-                    for idx in indices:
-                        canonical_story_ids[idx] = f"story_{batch[idx]['article']['id']}"
-
             from collections import defaultdict
             points_by_coll = defaultdict(list)
-            for idx, item in enumerate(batch):
+
+            for j, item in enumerate(batch):
                 a = item["article"]
+                story_id = f"story_{a['id']}"
                 payload = {
-                    "id":                 a["id"],
-                    "chunk_id":           item["id"],
-                    "chunk_idx":          item["chunk_idx"],
-                    "title":              a["title"],
-                    "summary":            a["summary"][:500],
-                    "published_ts":       _to_ts(a["published"]),
-                    "published":          a["published"][:10],
-                    "source":             a["source"],
-                    "region":             a.get("region", "india"),
-                    "url":                a["url"],
-                    "tickers":            a.get("tickers", []),
-                    "source_tier":        a.get("source_tier", 2),
-                    "credibility_score":  a.get("credibility_score", 0.7),
-                    "document_type":      a.get("document_type", "news"),
-                    "author":             a.get("author", "Unknown"),
-                    "canonical_story_id": canonical_story_ids[idx],
-                    "text":               item["chunk_text"],
-                    "full_text":          a["text"],
+                    "id":                a["id"],
+                    "title":             a["title"],
+                    "summary":           a["summary"],
+                    "published":         a["published"],
+                    "published_ts":      a["published_ts"],
+                    "source":            a["source"],
+                    "region":            a.get("region", "india"),
+                    "url":               a["url"],
+                    "tickers":           a["tickers"],
+                    "text":              item["chunk_text"],
+                    "chunk_idx":         item["chunk_idx"],
+                    "source_tier":       a.get("source_tier", 2),
+                    "credibility_score": a.get("credibility_score", 0.7),
+                    "document_type":     a.get("document_type", "news"),
+                    "author":            a.get("author", ""),
+                    "companies":         a.get("companies", []),
+                    "sector":            a.get("sector", ""),
+                    "industry":          a.get("industry", ""),
+                    "event_type":        a.get("event_type", "market_news"),
+                    "canonical_story_id": story_id
                 }
                 dest_coll = get_collection_name(payload["document_type"])
                 points_by_coll[dest_coll].append(
                     PointStruct(
                         id=_to_uuid(item["id"]),
-                        vector=embeddings[idx],
+                        vector=embeddings[j],
                         payload=payload
                     )
                 )
 
             for dest_coll, pts in points_by_coll.items():
-                self.client.upsert(
-                    collection_name=dest_coll,
-                    points=pts
-                )
+                if not pts:
+                    continue
+                # Upsert in sub-batches of 50 to avoid HTTP write timeouts
+                chunk_size = 50
+                for i in range(0, len(pts), chunk_size):
+                    sub_pts = pts[i:i + chunk_size]
+                    self.client.upsert(
+                        collection_name=dest_coll,
+                        points=sub_pts
+                    )
             stored += len(batch)
 
         total_count = sum(self.client.get_collection(name).points_count for name in COLLECTIONS)
