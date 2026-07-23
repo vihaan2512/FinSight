@@ -843,10 +843,9 @@ def fetch_all_articles(
 
 
 if __name__ == "__main__":
+    from ingestion.embedder import get_vector_store
     articles = fetch_all_articles()
-    print(f"\nTotal: {len(articles)}")
-    subset = articles
-    print(f"\nINDIA ({len(subset)} articles):")
-    for a in subset[:3]:
-        print(f"  [{a['source']}] {a['title'][:80]}")
-        print(f"    tickers: {a['tickers'][:8]}")
+    print(f"\nFetched: {len(articles)} articles. Embedding and uploading to Qdrant Cloud...")
+    store = get_vector_store()
+    stored = store.embed_and_store(articles)
+    print(f"\nSuccessfully stored {stored} chunks in Qdrant Cloud!")
