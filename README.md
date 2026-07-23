@@ -46,19 +46,19 @@ graph TD
     B -->|Hybrid Search: BM25 + Dense| F
     B -->|Re-rank: BGE-Reranker-Large| F
     B -->|Extract Text Statements| G[FinBERT Sentiment Classifier]
-    B -->|User Data watchlists, portfolios| H[(SQLite Database)]
+    B -->|User Data watchlists, portfolios| H[(PostgreSQL / SQLite)]
     B -->|Prompt Completion| I[Groq API LLMs]
 ```
 
 ### Technical Stack Details
-* **Frontend**: Streamlit + Plotly (for interactive visualizations).
-* **Backend**: FastAPI + AsyncIOScheduler (background crawlers run every 10 mins).
-* **Vector Database**: Qdrant (local file-storage).
-* **Relational Database**: SQLite (for Watchlists and Portfolio Holdings).
-* **Embeddings Model**: `BAAI/bge-large-en-v1.5` (1024-dimension dense vectors).
-* **Re-ranking Model**: `BAAI/bge-reranker-large` (Cross-Encoder Candidate Scorer).
-* **Sentiment Model**: `ProsusAI/finbert` (Specialized finance classification).
-* **LLM Engine**: Groq Client (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `mixtral-8x7b-32768`).
+* **Frontend**: Streamlit
+* **Backend**: FastAPI
+* **Vector Database**: Qdrant
+* **Relational Database**: PostgreSQL
+* **Embeddings Model**: `BAAI/bge-large-en-v1.5`
+* **Re-ranking Model**: `BAAI/bge-reranker-large`
+* **Sentiment Model**: `ProsusAI/finbert`
+* **LLM Engine**: Groq Client (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `mixtral-8x7b-32768`)
 
 ---
 
@@ -82,7 +82,7 @@ FinSight/
 │   ├── query_expansion.py# Entity-aware semantic query expansion
 │   ├── sentiment.py      # Ticker statement classifier (FinBERT)
 │   ├── vector_store.py   # Qdrant client utility wrappers
-│   └── watchlist_db.py   # SQLite db helper for watchlist/portfolio
+│   └── watchlist_db.py   # Relational DB helper (PostgreSQL / SQLite fallback)
 ├── evaluation/           # Benchmarking & Validation Suite
 │   ├── evaluator.py      # Core evaluation runner (retrieval + QA test runner)
 │   ├── ground_truth.py   # Curated Q&A dataset for system evaluation
@@ -91,6 +91,8 @@ FinSight/
 │   ├── generate_synthetic_eval.py
 │   └── test_pipeline.py  # End-to-end integration tests
 ├── config.py             # Global Pydantic environment configurations
+├── Dockerfile            # Production container build & model pre-caching setup
+├── .dockerignore         # Docker build context exclusion list
 └── requirements.txt      # Python dependencies list
 ```
 
@@ -129,10 +131,14 @@ NEWS_API_KEY=your_optional_news_api_key
 # If left blank/omitted, FinSight defaults to local file-based storage under ./qdrant_db
 QDRANT_URL=https://xxxx.gcp.qdrant.io:6333
 QDRANT_API_KEY=your_qdrant_api_key
+
+# Optional: Add your PostgreSQL database connection URL (Supabase / Neon)
+# If left blank/omitted, FinSight defaults to local SQLite file database under ./retrieval/watchlist.db
+POSTGRES_URL=postgresql://username:password@ep-host.region.aws.neon.tech/dbname?sslmode=require
 ```
 
 ### 4. Start the Backend API
-Run the FastAPI application. It will automatically initialize the local Qdrant collections and trigger an initial crawler ingestion run if the database is empty:
+Run the FastAPI application. It will automatically initialize the Qdrant collections and trigger an initial crawler ingestion run if the database is empty:
 
 ```bash
 uvicorn api.main:app --reload --port 8000
@@ -161,37 +167,3 @@ FinSight comes with extensive evaluation tools to monitor retrieval and generati
   ```bash
   python -m evaluation.evaluator
   ```
-
----
-
-## ☁️ Cloud Deployment
-
-FinSight is configured for secure production deployment using **Qdrant Cloud**, **Render**, and **Streamlit Community Cloud**.
-
-### 1. Database Setup (Qdrant Cloud)
-1. Sign up on [Qdrant Cloud Console](https://cloud.qdrant.io/) and spin up a **Free Tier Cluster**.
-2. Save your **Cluster URL** and generate a **Read-Write API Key**.
-3. Temporarily set these variables in your local `.env` file and run `python ingestion/rss_fetcher.py` to seed your cloud database.
-
-### 2. Backend Server Deployment (Render)
-1. Push your repository to GitHub (ensure `Dockerfile` and `.dockerignore` are in the root directory).
-2. Go to [Render.com](https://render.com) and sign up/log in.
-3. Click **New +** $\rightarrow$ select **Web Service**.
-4. Connect your GitHub account and select your `FinSight` repository.
-5. Configure your settings:
-   * **Language**: `Docker` *(Render will automatically find and build your Dockerfile)*
-   * **Instance Type**: `Free`
-6. Click **Advanced** $\rightarrow$ add these Environment Variables:
-   * `GROQ_API_KEY` = `(your Groq API Key)`
-   * `QDRANT_URL` = `(your Qdrant Cloud Cluster URL)`
-   * `QDRANT_API_KEY` = `(your Qdrant Cloud API Key)`
-7. Click **Deploy Web Service** at the bottom. Copy the backend service URL once it is live (e.g., `https://finsight-api.onrender.com`).
-
-### 3. Frontend UI Deployment (Streamlit Community Cloud)
-1. Log into [share.streamlit.io](https://share.streamlit.io/) with your GitHub account.
-2. Create a **New app** and point it to your repository's `ui/app.py`.
-3. In **Settings** $\rightarrow$ **Secrets**, paste:
-   ```toml
-   FINSIGHT_API_URL = "https://finsight-api.onrender.com"  # Your Render backend URL
-   ```
-4. Click **Deploy**. Your live dashboard is now securely hosted!
