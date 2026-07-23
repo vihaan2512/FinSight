@@ -183,11 +183,18 @@ class FeedRequest(BaseModel):
 
 @app.get("/health")
 async def health():
+    doc_count = _cached_doc_count
+    try:
+        store = get_vector_store()
+        stats = store.get_collection_stats()
+        doc_count = stats.get("total_documents", 0)
+    except Exception:
+        pass
     return {
         "status": "ok",
         "groq_model": settings.groq_model,
         "db": {
-            "total_documents": _cached_doc_count,
+            "total_documents": doc_count,
             "last_ingest_time": _last_ingest_time
         }
     }

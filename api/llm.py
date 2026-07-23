@@ -6,8 +6,9 @@ from groq import Groq
 from loguru import logger
 from config import get_settings
 
-settings = get_settings()
-client = Groq(api_key=settings.groq_api_key)
+def get_groq_client() -> Groq:
+    settings = get_settings()
+    return Groq(api_key=settings.groq_api_key)
 
 SYSTEM_PROMPT = """You are an expert financial analyst assistant.
 You answer questions about finance, markets, and stocks using ONLY the news context provided by deeply analysing the retrieved articles.
@@ -74,7 +75,7 @@ Answer based strictly on the news context above."""
 def _sync_response(messages: list, model: str) -> str:
     """Non-streaming Groq call. Returns full answer string."""
     try:
-        completion = client.chat.completions.create(
+        completion = get_groq_client().chat.completions.create(
             model=model,
             messages=messages,
             max_tokens=1024,
@@ -89,7 +90,7 @@ def _sync_response(messages: list, model: str) -> str:
 def _stream_response(messages: list, model: str):
     """Streaming Groq call. Yields text chunks."""
     try:
-        stream = client.chat.completions.create(
+        stream = get_groq_client().chat.completions.create(
             model=model,
             messages=messages,
             max_tokens=1024,
@@ -132,7 +133,7 @@ Be detailed, structured, and thorough. Do not leave out key numbers, interest ra
 
     user_content = f"Synthesize a deep, structured summary of all key information and major news topics from the following articles:\n\n{texts}"
 
-    completion = client.chat.completions.create(
+    completion = get_groq_client().chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": system_prompt},
