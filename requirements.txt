@@ -104,7 +104,6 @@ python-dateutil==2.9.0
 python-dotenv==1.0.1
 python-multipart==0.0.30
 pytz==2026.2
-pywin32==312
 PyYAML==6.0.3
 qdrant-client==1.18.0
 rank-bm25==0.2.2
@@ -159,7 +158,6 @@ weasel==1.0.0
 webencodings==0.5.1
 websocket-client==1.9.0
 websockets==16.0
-win32_setctime==1.2.0
 wrapt==2.2.1
 yarl==1.24.2
 yfinance==0.2.40
