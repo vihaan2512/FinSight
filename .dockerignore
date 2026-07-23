@@ -4,3 +4,5 @@ qdrant_db_benchmark/
 .env
 .git/
 __pycache__/
+*.db
+watchlist.db
