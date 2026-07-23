@@ -8,7 +8,20 @@ import requests
 import streamlit as st
 from typing import Optional, Iterator
 
-API_BASE = os.getenv("FINSIGHT_API_URL", "http://127.0.0.1:8000")
+def _get_api_base() -> str:
+    if os.getenv("FINSIGHT_API_URL"):
+        return os.getenv("FINSIGHT_API_URL").rstrip("/")
+    try:
+        if hasattr(st, "secrets"):
+            if "FINSIGHT_API_URL" in st.secrets:
+                return str(st.secrets["FINSIGHT_API_URL"]).rstrip("/")
+            if "finsight_api_url" in st.secrets:
+                return str(st.secrets["finsight_api_url"]).rstrip("/")
+    except Exception:
+        pass
+    return "http://127.0.0.1:8000"
+
+API_BASE = _get_api_base()
 TIMEOUT  = 60   
 
 
