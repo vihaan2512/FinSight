@@ -117,7 +117,7 @@ with st.sidebar:
         st.markdown("**Database Status**")
         st.caption(f"🗃️ Articles Indexed: **{doc_count}**")
         st.caption(f"🕒 Last Crawled: **{last_ingest}**")
-        st.caption("🔄 Runs automatically every 10m")
+        st.caption("🔄 Runs automatically every 30m")
 
         # Automatically trigger cross-encoder warmup on load
         if "warmed_up" not in st.session_state:
