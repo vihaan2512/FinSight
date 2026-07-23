@@ -280,8 +280,7 @@ if page == "💬 Ask FinSight":
 
     if question:
         if doc_count == 0:
-            st.warning("No articles indexed yet. Please wait for background ingestion to complete.")
-            st.stop()
+            st.info("ℹ️ Connecting to vector database...")
 
         st.session_state.chat_history.append({"role": "user", "content": question})
         st.markdown(f'<div class="chat-msg-user">🙋 {question}</div>', unsafe_allow_html=True)
