@@ -18,7 +18,7 @@ from retrieval.cache_utils import ttl_cache
 
 _cross_encoder: Optional[CrossEncoder] = None
 
-CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+CROSS_ENCODER_MODEL = "BAAI/bge-reranker-large"
 CANDIDATE_POOL = 50   
 RRF_K = 60            
 
