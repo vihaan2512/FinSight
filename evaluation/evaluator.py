@@ -297,7 +297,7 @@ def run_evaluation(
     days: int = 30,
     top_k: int = 8,
     save: bool = True,
-    mode: str = "dense",
+    mode: str = "hybrid",
 ):
     groq_client = Groq(api_key=settings.groq_api_key) if settings.groq_api_key else None
 
@@ -325,7 +325,7 @@ def run_evaluation(
             json.dump({"summary": agg, "results": results}, f, indent=2, default=str)
         logger.success(f"Results saved to {out_path}")
 
-    return agg, results
+    return {"metrics": agg, "results": results}
 
 
 if __name__ == "__main__":
@@ -335,7 +335,7 @@ if __name__ == "__main__":
     parser.add_argument("--days",   type=int, default=30,   help="Days of news to search (default 30)")
     parser.add_argument("--top-k",  type=int, default=8,    help="Docs to retrieve per query")
     parser.add_argument("--no-save",action="store_true",    help="Don't save results to file")
-    parser.add_argument("--mode",   type=str, default="dense", choices=["dense", "hybrid"], help="Retrieval mode (dense or hybrid)")
+    parser.add_argument("--mode",   type=str, default="hybrid", choices=["dense", "hybrid"], help="Retrieval mode (dense or hybrid)")
     args = parser.parse_args()
 
     run_evaluation(
